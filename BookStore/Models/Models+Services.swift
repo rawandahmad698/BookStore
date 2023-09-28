@@ -17,41 +17,72 @@ struct Book: Decodable {
     let artwork: String
     let bookName: String
     let description: String
-    
+    let formattedPrice: String
     private enum CodingKeys: String, CodingKey {
         case description
+        case formattedPrice
         case artwork = "artworkUrl100"
         case bookName = "trackName"
     }
 }
 
+enum ApiError: Error {
+    case bookNotFound
+    case serverFailure
+}
+
 class BookService {
     func fetchBooks(for searchTerm: String) -> Observable<[Book]> {
-        guard let encodedSearchTerm = searchTerm.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+        guard let url = URL(string: "https://itunes.apple.com/search") else {
             return Observable.just([])
         }
-        
-        guard let url = URL(string: "https://itunes.apple.com/search?media=ebook&term=\(encodedSearchTerm)") else {
-            return Observable.just([])
-        }
-        var request = URLRequest(url: url)
-        request.allHTTPHeaderFields = [
-            "Accept": "*/*",
-            "Accept-Language": "en;q=1.0, ckb-US;q=0.9",
-            "User-Agent": "Postman Runtime via BookStore",
-            "X-Forwarded-For": "8.8.8.8"
+        let params = [
+            "media": "ebook",
+            "term": searchTerm
         ]
-        
-        return URLSession.shared.rx.data(request: request)
-            .map { data in
-                let decoder = JSONDecoder()
-                do {
-                    let response = try decoder.decode(SearchResponse.self, from: data)
-                    return response.results
-                } catch {
-                    return []
+        let urlComponents = NSURLComponents(url: url, resolvingAgainstBaseURL: true)!
+
+        let request: Observable<URLRequest> = Observable.create { observer in
+            var request = URLRequest(url: url)
+            let queryItems = params.map { URLQueryItem(name: $0.0, value: $0.1) }
+            urlComponents.queryItems = queryItems
+            
+            request.url = urlComponents.url!
+            request.httpMethod = "GET"
+            request.allHTTPHeaderFields = [
+                "Accept": "*/*",
+                "Accept-Language": "en;q=1.0, ckb-US;q=0.9",
+                "User-Agent": "Postman Runtime via BookStore",
+                "X-Forwarded-For": "8.8.8.8"
+            ]
+            observer.onNext(request)
+            observer.onCompleted()
+            
+            return Disposables.create()
+        }
+        let session = URLSession.shared
+        return request.flatMap { request in
+            return session.rx.response(request: request)
+                .map { response, data in
+                    switch response.statusCode {
+                    case 200 ..< 300:
+                        let decoder = JSONDecoder()
+                        do {
+                            let response = try decoder.decode(SearchResponse.self, from: data)
+                            if response.resultCount == 0 {
+                                throw ApiError.bookNotFound
+                            }
+                            return response.results
+                        } catch {
+                            throw ApiError.bookNotFound
+                        }
+                    case 400 ..< 500:
+                        throw ApiError.bookNotFound
+                    default:
+                        throw ApiError.serverFailure
+                    }
                 }
-            }
+        }
     }
 }
 
@@ -62,11 +93,10 @@ class ViewModel {
     
     let books = BehaviorRelay<[Book]>(value: [])
     
-    func fetchBooks(for searchTerm: String) {
-        bookService.fetchBooks(for: searchTerm)
-            .subscribe(onNext: { [weak self] books in
+    func fetchBooks(for searchTerm: String) -> Observable<[Book]> {
+        return bookService.fetchBooks(for: searchTerm)
+            .do(onNext: { [weak self] books in
                 self?.books.accept(books)
             })
-            .disposed(by: disposeBag)
     }
 }
