@@ -18,6 +18,7 @@
 		A76B06BE2A91FF57006210BD /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A76B06BD2A91FF57006210BD /* RxSwift */; };
 		A76B06C12A9204FB006210BD /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = A76B06C02A9204FB006210BD /* Kingfisher */; };
 		A76B06C52A921AE2006210BD /* Models+Services.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76B06C42A921AE2006210BD /* Models+Services.swift */; };
+		A7B205912AC5A08D0037C263 /* ViewBookViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7B205902AC5A08D0037C263 /* ViewBookViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 		A76B06B22A90D479006210BD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A76B06B82A91E883006210BD /* BooksTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BooksTableViewCell.swift; sourceTree = "<group>"; };
 		A76B06C42A921AE2006210BD /* Models+Services.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models+Services.swift"; sourceTree = "<group>"; };
+		A7B205902AC5A08D0037C263 /* ViewBookViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewBookViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +92,7 @@
 			children = (
 				A76B06C62A921B16006210BD /* Cells */,
 				A76B06A82A90D478006210BD /* ViewController.swift */,
+				A7B205902AC5A08D0037C263 /* ViewBookViewController.swift */,
 			);
 			path = VCs;
 			sourceTree = "<group>";
@@ -201,6 +204,7 @@
 			files = (
 				A76B06B92A91E883006210BD /* BooksTableViewCell.swift in Sources */,
 				A76B06C52A921AE2006210BD /* Models+Services.swift in Sources */,
+				A7B205912AC5A08D0037C263 /* ViewBookViewController.swift in Sources */,
 				A76B06A92A90D478006210BD /* ViewController.swift in Sources */,
 				A76B06A52A90D478006210BD /* AppDelegate.swift in Sources */,
 				A76B06A72A90D478006210BD /* SceneDelegate.swift in Sources */,

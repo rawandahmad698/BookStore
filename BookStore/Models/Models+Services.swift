@@ -18,11 +18,14 @@ struct Book: Decodable {
     let bookName: String
     let description: String
     let formattedPrice: String
+    let iBooksURL: String
+    
     private enum CodingKeys: String, CodingKey {
         case description
         case formattedPrice
         case artwork = "artworkUrl100"
         case bookName = "trackName"
+        case iBooksURL = "trackViewUrl"
     }
 }
 
@@ -92,6 +95,7 @@ class ViewModel {
     private let disposeBag = DisposeBag()
     
     let books = BehaviorRelay<[Book]>(value: [])
+    let selectedBook = BehaviorRelay<Book?>(value: nil)
     
     func fetchBooks(for searchTerm: String) -> Observable<[Book]> {
         return bookService.fetchBooks(for: searchTerm)
@@ -99,4 +103,8 @@ class ViewModel {
                 self?.books.accept(books)
             })
     }
+}
+
+protocol BooksTableViewCellDelegate: AnyObject {
+    func didTapReadMoreButton(in cell: BooksTableViewCell)
 }

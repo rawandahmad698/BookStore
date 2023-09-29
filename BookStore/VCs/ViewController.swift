@@ -12,7 +12,8 @@ import Kingfisher
 
 
 
-class ViewController: UIViewController, UISearchResultsUpdating, UITableViewDelegate {
+class ViewController: UIViewController, UISearchResultsUpdating, UITableViewDelegate, BooksTableViewCellDelegate {
+    
     func updateSearchResults(for searchController: UISearchController) {}
     
     
@@ -77,21 +78,25 @@ class ViewController: UIViewController, UISearchResultsUpdating, UITableViewDele
         }
         
         textSearch
-            .bind(to: tableView.rx.items(cellIdentifier: "booksCell", cellType: BooksTableViewCell.self)) { (row, book, cell) in
+            .observe(on: MainScheduler.instance)
+            .bind(to: tableView.rx.items(cellIdentifier: "booksCell", cellType: BooksTableViewCell.self)) { [weak self] (row, book, cell) in
+                cell.delegate = self
+
                 cell.bookTitle.text = book.bookName
                 cell.bookDescription.text = book.description
                 cell.bookPrice.text = book.formattedPrice
                 
                 let indexPath = IndexPath(row: row, section: 0)
-                cell.isExpanded = indexPath == self.expandedIndexPath
+                cell.isExpanded = indexPath == self?.expandedIndexPath
                 
                 if let constraint = cell.viewHightConstraint {
                    constraint.isActive = cell.isExpanded
                 }
                 
-                if let imageURL = URL(string: book.artwork) {
+                if let imageURL = URL(string: book.artwork.replacingOccurrences(of: "100x100bb", with: "600x600bb")) {
                     cell.bookImage.kf.setImage(with: imageURL)
                 }
+                
                 activityIndicator.stopAnimating()
             }
             .disposed(by: disposeBag)
@@ -112,6 +117,15 @@ class ViewController: UIViewController, UISearchResultsUpdating, UITableViewDele
         
     }
     
+    func didTapReadMoreButton(in cell: BooksTableViewCell) {
+        if let indexPath = tableView.indexPath(for: cell) {
+            let selectedBook = viewModel.books.value[indexPath.row]
+            self.viewModel.selectedBook.accept(selectedBook)
+            
+            self.performSegue(withIdentifier: "viewBook", sender: self)
+        }
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -130,6 +144,12 @@ class ViewController: UIViewController, UISearchResultsUpdating, UITableViewDele
             return 200
         }
         return 100
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let destinationVC = segue.destination as? ViewBookViewController {
+            destinationVC.viewModel = viewModel
+        }
     }
     
     func showAlert(title: String) {
