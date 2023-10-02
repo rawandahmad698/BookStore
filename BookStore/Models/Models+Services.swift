@@ -91,7 +91,7 @@ class BookService {
 
 
 class ViewModel {
-    private let bookService = BookService()
+    var bookService = BookService()
     private let disposeBag = DisposeBag()
     
     let books = BehaviorRelay<[Book]>(value: [])

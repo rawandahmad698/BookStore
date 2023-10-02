@@ -16,7 +16,6 @@ class ViewController: UIViewController, UISearchResultsUpdating, UITableViewDele
     
     func updateSearchResults(for searchController: UISearchController) {}
     
-    
     // Table View
     @IBOutlet weak var tableView: UITableView!
     var expandedIndexPath: IndexPath?

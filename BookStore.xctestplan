@@ -1,0 +1,23 @@
+{
+  "configurations" : [
+    {
+      "id" : "53DFA984-F8A1-4FA2-A1A4-C5EBB75860DB",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:BookStore.xcodeproj",
+      "identifier" : "A76B06A02A90D478006210BD",
+      "name" : "BookStore"
+    }
+  },
+  "testTargets" : [
+
+  ],
+  "version" : 1
+}
