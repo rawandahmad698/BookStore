@@ -9,14 +9,13 @@ import XCTest
 
 final class BookStoreUITests: XCTestCase {
     let app = XCUIApplication()
-    
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
         
         app.launch()
     }
-    func testExample() throws {
+    func testSearchField() throws {
         
         let searchField = app.searchFields["Type something here to search"]
         
@@ -28,7 +27,12 @@ final class BookStoreUITests: XCTestCase {
         
         XCTAssertTrue(tableView.waitForExistence(timeout: 10), "Table view did not appear")
         
-        let cell = tableView.cells.element(boundBy: 0)
-        XCTAssertTrue(cell.exists, "Table cell not found")
+        let cells = tableView.cells
+        
+        // Wait for the cells to appear
+        XCTAssertTrue(cells.firstMatch.waitForExistence(timeout: 10))
+
+        let cellCount = tableView.cells.count
+        XCTAssertEqual(cellCount, 50)
     }
 }

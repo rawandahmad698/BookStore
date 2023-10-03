@@ -35,6 +35,7 @@ enum ApiError: Error {
 }
 
 class BookService {
+    private let serialScheduler = SerialDispatchQueueScheduler(internalSerialQueueName: "queue")
     func fetchBooks(for searchTerm: String) -> Observable<[Book]> {
         guard let url = URL(string: "https://itunes.apple.com/search") else {
             return Observable.just([])
@@ -84,6 +85,26 @@ class BookService {
                     default:
                         throw ApiError.serverFailure
                     }
+                }
+                .retry { e in
+                    return e.enumerated().flatMap { attempt, error -> Observable<Int> in
+                
+                        switch error {
+                        case ApiError.bookNotFound:
+                            return Observable.error(error)
+                        default:
+                            if attempt >= 4 - 1 {
+                                return Observable.error(error)
+                            }
+                            return Observable<Int>.timer(.seconds((attempt + 1) * 2),
+                                                         scheduler: self.serialScheduler)
+                            .take(1)
+                        }
+                        
+                    }
+                }
+                .catch { error in
+                    return Observable<[Book]>.just([])
                 }
         }
     }
